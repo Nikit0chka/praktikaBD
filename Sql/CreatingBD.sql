@@ -7,7 +7,7 @@ CREATE PROCEDURE CreateLogin @LoginName varchar(50), @LoginPassword varchar (50)
 AS
 BEGIN
 DECLARE @sqlCommand nvarchar(1000)
-IF not exists (SELECT NAME from sys.server_principals  WHERE TYPE = 'S' and NAME = @LoginName)
+IF NOT EXISTS (SELECT NAME from sys.server_principals  WHERE TYPE = 'S' and NAME = @LoginName)
 	SELECT @sqlCommand = 'CREATE LOGIN "' + @LoginName + '" WITH PASSWORD = ''' + @LoginPassword+ ''', CHECK_POLICY = OFF'
 EXEC sp_executesql @sqlCommand
 END;
