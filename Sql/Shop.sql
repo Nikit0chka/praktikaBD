@@ -111,6 +111,7 @@ EXEC sp_addrolemember db_owner, NikitaAdmin;
 DROP TRIGGER IF EXISTS CascadeDeleteTrig1;
 DROP TRIGGER IF EXISTS CascadeDeleteTrig2;
 DROP TRIGGER IF EXISTS CascadeDeleteTrig3;
+DROP TRIGGER IF EXISTS InsertCurrentTime;
 
 GO
 CREATE TRIGGER CascadeDeleteTrig1 ON Departments
