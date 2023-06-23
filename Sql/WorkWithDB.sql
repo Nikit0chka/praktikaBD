@@ -1,17 +1,13 @@
+--Переключине на созданную бд
 USE ChildrenCamp;
 
-INSERT TransportTypes 
-VALUES (1, 'Автобус'),
-	   (2, 'Маршрутка'),
-	   (3, 'Автобус-маршрутка'),
-	   (4, 'Велосипед')
-
+--Заполнение таблиц
 INSERT Transports
-VALUES (1, '13:00'),
-	   (2, '14:14'),
-	   (3, '15:11'),
-	   (4, '17:24'),
-	   (1, '12:00')
+VALUES ('Автобус', '13:00'),
+	   ('Маршрутка', '14:14'),
+	   ('Автобус-маршрутка', '15:11'),
+	   ('Велосипед', '17:24'),
+	   ('Маршрутка', '12:00')
 
 INSERT Squads
 VALUES ('Отряд Солнышки', 'Все счастливые'),
@@ -71,7 +67,7 @@ VALUES ('Консервы', '2025.12.12'),
 	   ('Реквизит', NULL),
 	   ('Мебель',   NULL),
 	   ('Одежда',   NULL),
-	   ('Морковка', '2025.11.12')
+	   ('Морковка', '2020.11.12')
 
 INSERT HousingInventory
 VALUES ('2015.12.12', 1, 1),
@@ -161,8 +157,7 @@ VALUES (1, 1, 'Следит за порядком'),
 	   (6, 5, 'Выпивает'),
 	   (7, 6, 'Развлекается')
 
-SELECT * FROM TransportTypes
-
+--Вывод таблиц
 SELECT * FROM Transports	
 
 SELECT * FROM EventEmployees
@@ -197,51 +192,36 @@ SELECT * FROM ChildrenParents
 
 SELECT * FROM EventMembers
 
-SELECT DISTINCT ChildActivity
-FROM EventMembers
+--Вызов процедур
+EXEC ShowSquadMembersAndSquadLeaders;
 
-SELECT * FROM CHILDREN
-WHERE DateOfBirthday BETWEEN '2006.01.01' AND '2013.01.01'
+DECLARE @Result NVARCHAR(70);
+EXEC ChangeSquadLeaderSquadCode 1, 2, @Result OUTPUT;
+SELECT @Result as Result;
 
-SELECT * FROM Trips
-ORDER BY DateOfEnd ASC
+EXEC GetChildrenFullNameFullAge;
 
-SELECT TOP 50 PERCENT FullName
-FROM CampEmployees
+EXEC InsertRowsFromFile 'C:\Users\voron\Downloads\FileForInsert.txt', 'Transports'
 
-SELECT * FROM EventEmployees
-WHERE CampEmployeeCode IN (1, 2)
+--Вызов представления
+SELECT * FROM ChildrensHousing;
 
-SELECT * FROM Parents 
-WHERE ParentFullName LIKE '%Дани%'
+--Полезные запросы
+SELECT DP1.name AS DatabaseRoleName,   
+       ISNULL (DP2.name, 'No members') AS DatabaseUserName   
+FROM sys.database_role_members AS DRM  
+RIGHT OUTER JOIN sys.database_principals AS DP1 ON DRM.role_principal_id = DP1.principal_id  
+LEFT OUTER JOIN sys.database_principals AS DP2 ON DRM.member_principal_id = DP2.principal_id  
+WHERE DP1.type = 'R'
+ORDER BY DP1.name; 
 
-SELECT TOP 2 EventName, DateOfEvent
-FROM CampEvents
-ORDER BY DateOfEvent ASC
+SELECT pr.type_desc,
+	   pr.name,
+       ISNULL(pe.state_desc, 'No permission statements') AS state_desc,
+       ISNULL(pe.permission_name, 'No permission statements') AS permission_name
+FROM sys.database_principals AS pr
+LEFT JOIN sys.database_permissions AS pe ON pr.principal_id = pe.grantee_principal_id
+WHERE pr.is_fixed_role = 0
+ORDER BY pr.name, type_desc;
 
-SELECT * FROM CampEvents
-ORDER BY DateOfEvent ASC
-
-SELECT DateOfStart
-FROM Trips
-ORDER BY DateOfStart
-	OFFSET 3 ROWS
-	FETCH NEXT 5 ROWS ONLY
-
-UPDATE TOP(1) TransportTypes
-SET TypeName = 'Ламборгини'
-SELECT * FROM Transports
-
---Удаление Медведева Макара
---DELETE FROM Children WHERE Full_name = 'Медведев Макар Владимирович'
---SELECT * FROM Transports
-
-DELETE FROM ChildrenParents where ChildCode = 1;
-SELECT * FROM ChildrenParents;
-SELECT * FROM Children;
-SELECT * FROM Parents;
-
-DELETE FROM TransportTypes WHERE TypeName = 'Ламборгини'
-SELECT * FROM Transports
-SELECT * FROM TransportTypes
-use master;
+USE master;
